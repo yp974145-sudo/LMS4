@@ -22,7 +22,8 @@ TEST(Sha256, KnownValue_Hello) {
 TEST(Sha256, KnownValue_Chinese) {
     // SHA-256("你好") 的已知值
     auto hash = sha256("你好");
-    EXPECT_EQ(hash, "670d9743542cae3ea7ebe36af56bd5368b0b112f4cb1f1fb42d097088e013fcb");
+    // Independently checked with Python hashlib over UTF-8 bytes.
+    EXPECT_EQ(hash, "670d9743542cae3ea7ebe36af56bd53648b0a1126162e78d81a32934a711302e");
 }
 
 TEST(Sha256, Deterministic) {

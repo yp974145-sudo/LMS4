@@ -382,6 +382,15 @@ public:
 #endif
             return false;
         }
+#ifndef _WIN32
+        // Linux retains accepted connections in TIME_WAIT after active close.
+        // Reuse the listening address on restart; this does not enable SO_REUSEPORT.
+        int reuse = 1;
+        if (::setsockopt(sock_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0) {
+            close_socket(sock_); sock_=invalid;
+            return false;
+        }
+#endif
         sockaddr_in addr{}; addr.sin_family=AF_INET; addr.sin_port=htons(static_cast<uint16_t>(port_));
         addr.sin_addr.s_addr=htonl(bind_address_ == "0.0.0.0" ? INADDR_ANY : INADDR_LOOPBACK);
         if (::bind(sock_,reinterpret_cast<sockaddr*>(&addr),sizeof(addr)) != 0 || ::listen(sock_,SOMAXCONN) != 0) {
