@@ -1,5 +1,20 @@
 # LMS4：C++ 后台求职学习项目
 
+## 公开仓库与云端验证
+
+公开仓库：https://github.com/yp974145-sudo/LMS4 。代码提交 `cb899c2` 已通过 [基础CI](https://github.com/yp974145-sudo/LMS4/actions/runs/41985628213) 和 [Drogon Linux检查](https://github.com/yp974145-sudo/LMS4/actions/runs/41985628132)。下文较早阶段的“Linux未测”和“尚未上传”是当时记录，当前以本节及验证报告为准。
+
+Ubuntu24.04源码运行入口（文件存储模式）如下；仍需安装 backend/README.md 列出的Drogon开发依赖：
+
+```bash
+cmake -S . -B build/app -G Ninja -DLMS_MYSQL=OFF -DLMS_USE_DROGON=ON -DBUILD_HTTP_TESTS=OFF
+cmake --build build/app --target lms-server --parallel 2
+./build/app/lms-server --config config/learning.example.json
+```
+
+在项目根目录运行后，浏览器访问 http://127.0.0.1:18080/ 。仓库没有本机MySQL配置和数据库。此处为本地运行，不是公网在线部署；未验证Linux下本项目MySQL业务、多实例、TLS和长期稳定性。详细结果见 `docs/公开发布与Linux验证.md`。
+
+
 当前迁移以原 `src/main.cpp` 和根 CMake 为准：Drogon已接入原业务候选，文件模式15项业务/原网页检查通过；原MySQL日常程序尚未替换。`backend/` 的健康接口仅作框架验证材料，不代替原业务。没有删除旧源码或数据，没有上传GitHub。
 
 
