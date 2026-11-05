@@ -46,7 +46,7 @@ TEST(JsonParse, NestedObject) {
 
 TEST(JsonParse, Array) {
     auto j = Json::parse(R"({"tags":["c++","backend","rest"]})");
-    auto arr = j["tags"];
+    auto arr = j["tags"].as_array();
     EXPECT_EQ(arr.size(), 3);
     EXPECT_EQ(arr[0].as_string(), "c++");
     EXPECT_EQ(arr[1].as_string(), "backend");
@@ -66,9 +66,9 @@ TEST(JsonParse, ComplexNesting) {
         ],
         "total": 2
     })");
-    EXPECT_EQ(j["orders"].size(), 2);
-    EXPECT_EQ(j["orders"][0]["id"].as_string(), "WL001");
-    EXPECT_EQ(j["orders"][0]["items"][0]["qty"].as_int(), 2);
+    EXPECT_EQ(j["orders"].as_array().size(), 2);
+    EXPECT_EQ(j["orders"].as_array()[0]["id"].as_string(), "WL001");
+    EXPECT_EQ(j["orders"].as_array()[0]["items"].as_array()[0]["qty"].as_int(), 2);
     EXPECT_EQ(j["total"].as_int(), 2);
 }
 
@@ -87,7 +87,7 @@ TEST(JsonDump, ArrayRoundTrip) {
     auto j = Json::make_array({"a", "b", "c"});
     auto s = j.dump();
     auto parsed = Json::parse(s);
-    EXPECT_EQ(parsed.size(), 3);
+    EXPECT_EQ(parsed.as_array().size(), 3);
 }
 
 TEST(JsonDump, ObjectRoundTrip) {

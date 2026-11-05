@@ -28,7 +28,7 @@ Ubuntu 24.04 可使用其官方 universe 仓库中的 libdrogon-dev（1.8.7）�
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y g++ cmake ninja-build python3 libdrogon-dev
+sudo apt-get install -y g++ cmake ninja-build python3 libdrogon-dev libjsoncpp-dev libssl-dev zlib1g-dev libsqlite3-dev libpq-dev libhiredis-dev uuid-dev libbrotli-dev libyaml-cpp-dev libc-ares-dev libmariadb-dev
 bash backend/build-linux.sh
 ./build/backend-linux/lms-backend --port 18082
 ```

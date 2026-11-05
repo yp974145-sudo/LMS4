@@ -230,8 +230,11 @@ class Storage(unittest.TestCase):
 
     def test_directory_lock_blocks_recovery_and_second_instance(self):
         self.start();self.create()
+        before=(self.directory/'order.dat').read_bytes()
         result=self.tool('--restore','orders',self.directory/'order.dat')
-        self.assertNotEqual(result.returncode,0);self.assertIn('lock',result.stderr)
+        self.assertNotEqual(result.returncode,0)
+        self.assertRegex(result.stderr.lower(),r'lock|directory is in use')
+        self.assertEqual((self.directory/'order.dat').read_bytes(),before)
         self.startup_fails()
         self.assertEqual(self.request('GET','/api/health',actor=None)[0],200)
         self.stop()
