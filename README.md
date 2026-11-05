@@ -135,3 +135,12 @@
 新增 `backend/` 作为现有业务的 Drogon 网络层迁移入口，Windows 原生构建与真实 HTTP 检查通过。当前仅健康接口，不包含登录、订单或数据库迁移。运行 `START-BACKEND.cmd` 后访问 http://127.0.0.1:18082/api/health 。原18080业务入口保留。
 
 Linux脚本与Ubuntu CI已编写，本机WSL未安装，Linux运行未实测。详细构建与边界见 `backend/README.md`。阶段讲解与5组面试问答见 `docs/阶段01_双平台Drogon入口_代码讲解与面试问答.docx`。
+
+
+## 从 GitHub 获取后的运行边界
+
+本仓库不包含本机数据库目录、账号密码配置、依赖二进制或构建产物。先按 `backend/README.md` 恢复框架依赖。根CMake默认启用Drogon，正式业务入口仍在src/main.cpp，backend健康示例只用于框架检查。
+
+文件模式配置可从 `config/learning.example.json` 复制，启动候选程序时用 `--config config/learning.example.json`。MySQL运行配置需要在自己的机器上填写，不能使用本机私有配置。网页资源保留在static目录，运行时工作目录应为项目根。
+
+GitHub Actions执行构建与测试，不等于持续在线部署。GitHub Pages只能发布静态前端，C++进程与数据库需要服务器。Linux测试结果以Actions实际执行记录为准。

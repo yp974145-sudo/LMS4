@@ -1,0 +1,8 @@
+{
+  "port": 18080,
+  "bind_address": "127.0.0.1",
+  "thread_count": 4,
+  "mysql": { "enabled": false },
+  "data_directory": "data/learning",
+  "log": { "file": "lms.log", "level": "info" }
+}
