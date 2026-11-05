@@ -1,6 +1,9 @@
 #include "lms/api_handlers.h"
 #include "lms/config.h"
 #include "lms/file_storage.h"
+#ifdef LMS_USE_DROGON
+#include "lms/drogon_bridge.h"
+#endif
 #ifdef LMS_HAS_MYSQL
 #include "lms/connection_pool.h"
 #endif
@@ -67,6 +70,10 @@ int main(int argc, char** argv) {
         }
         lms::UserService users(user_repo);
         lms::OrderService orders(order_repo);
+#ifdef LMS_USE_DROGON
+        lms::run_drogon(cfg,users,orders,secret);
+        return 0;
+#else
         lms::http::Server server;
         server.set_port(cfg.port).set_thread_count(cfg.thread_count).set_bind_address(cfg.bind_address);
         lms::api::register_routes(server.router(),users,orders,secret,cfg.mysql.enabled);
@@ -77,5 +84,6 @@ int main(int argc, char** argv) {
         while(!stopping) std::this_thread::sleep_for(std::chrono::milliseconds(100));
         server.stop();
         return 0;
+#endif
     } catch(const std::exception& error) { std::cerr << error.what() << std::endl; return 1; }
 }

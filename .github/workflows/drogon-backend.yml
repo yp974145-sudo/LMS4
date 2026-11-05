@@ -2,9 +2,9 @@ name: Drogon backend Linux check
 on:
   workflow_dispatch:
   push:
-    paths: ['backend/**', '.github/workflows/drogon-backend.yml']
+    paths: ['backend/**', 'src/**', 'include/**', 'tests/**', 'CMakeLists.txt', '.github/workflows/drogon-backend.yml']
   pull_request:
-    paths: ['backend/**', '.github/workflows/drogon-backend.yml']
+    paths: ['backend/**', 'src/**', 'include/**', 'tests/**', 'CMakeLists.txt', '.github/workflows/drogon-backend.yml']
 jobs:
   linux:
     runs-on: ubuntu-24.04
@@ -14,3 +14,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y g++ cmake ninja-build python3 libdrogon-dev
       - name: Configure build and HTTP check
         run: bash backend/build-linux.sh
+      - name: Build existing business on Drogon
+        run: |
+          cmake -S . -B build/integrated-drogon -G Ninja -DLMS_MYSQL=OFF -DLMS_USE_DROGON=ON -DBUILD_HTTP_TESTS=OFF
+          cmake --build build/integrated-drogon --target lms-server --parallel 2
+          export LMS_TEST_TEMP_ROOT="${RUNNER_TEMP}"
+          python3 -B tests/drogon_business.py build/integrated-drogon/lms-server

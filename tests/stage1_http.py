@@ -19,7 +19,7 @@ sys.argv = sys.argv[:1]
 class Stage1(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        temp_root = Path(__file__).resolve().parents[1]/'.tmp'
+        temp_root = Path(os.environ.get('LMS_TEST_TEMP_ROOT',str(Path(__file__).resolve().parents[1]/'.tmp')))
         temp_root.mkdir(exist_ok=True)
         cls.temp = tempfile.TemporaryDirectory(prefix='lms-stage1-',dir=temp_root)
         cls.log = open(Path(cls.temp.name)/'server.log','w',encoding='utf-8')

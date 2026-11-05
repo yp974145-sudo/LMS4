@@ -1,0 +1,80 @@
+name: LMS CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # ============================================
+  # 编译 + 测试（文件模式，无外部依赖）
+  # ============================================
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-13
+
+      - name: Build (file mode)
+        run: |
+          g++-13 -std=c++17 -O2 -Wall -Wextra -Wpedantic \
+            -I include \
+            src/main.cpp \
+            src/user_repo_file.cpp \
+            src/order_repo_file.cpp \
+            src/user_service.cpp \
+            -pthread \
+            -o lms-server
+
+      - name: HTTP and lifecycle regressions (file mode)
+        run: |
+          mkdir -p .tmp
+          export TMPDIR="$PWD/.tmp"
+          export LMS_TEST_FILE_ONLY=1
+          python3 tests/stage1_http.py ./lms-server
+          python3 tests/startup_config.py ./lms-server
+          g++-13 -std=c++17 -O2 -I include src/storage_tool.cpp -pthread -o lms-storage
+          python3 tests/storage_http.py ./lms-server ./lms-storage
+          g++-13 -std=c++17 -O2 -I include tests/server_lifecycle.cpp -pthread -o server-lifecycle
+          python3 tests/check_lifecycle.py ./server-lifecycle
+
+  # ============================================
+  # 单元测试（CMake + Google Test）
+  # ============================================
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DBUILD_TESTS=ON -DLMS_MYSQL=OFF -DLMS_USE_DROGON=OFF
+
+      - name: Build tests
+        run: cmake --build build -j$(nproc)
+
+      - name: Run tests
+        run: cd build && ctest --output-on-failure
+
+  # ============================================
+  # Docker 镜像构建
+  # ============================================
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, unit-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t lms-server:v4.0 .
+
+      - name: Verify image
+        run: |
+          docker run --rm -d --name lms-test -p 8080:8080 lms-server:v4.0
+          sleep 3
+          curl -s http://localhost:8080/api/health
+          docker stop lms-test
