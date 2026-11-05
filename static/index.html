@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LMS v4.0 · 物流管理</title>
+<style>
+:root {
+  --ink:#1a1d28;--slate:#4a5568;--fog:#8899aa;--white:#fff;--surface:#f6f8fb;
+  --border:#e8ecf2;--line:#dfe4ea;--accent:#4f6ef7;--accent-h:#3d5ce5;--accent-soft:#eef1fe;
+  --green:#0ea06e;--green-soft:#e6f7f0;--amber:#c2780a;--amber-soft:#fef9ee;
+  --rose:#dc3b57;--rose-soft:#fef2f4;
+  --radius:8px;--radius-sm:5px;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 24px rgba(0,0,0,.08);
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono","Fira Code",monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font:400 14px/1.55 var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{background:var(--surface);min-height:100vh}
+
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tab-btn{flex:1;padding:13px 0;text-align:center;font:600 13px var(--font);color:var(--fog);background:var(--white);border:none;cursor:pointer;transition:.15s;border-bottom:2px solid transparent;letter-spacing:-0.2px}
+.tab-btn:hover{color:var(--ink);background:var(--surface)}
+.tab-btn.active{color:var(--ink);border-bottom-color:var(--accent);background:var(--white)}
+
+/* Login */
+.login-wrapper{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+.login-card{display:grid;grid-template-columns:1fr 1fr;max-width:780px;width:100%;background:var(--white);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden}
+.login-brand{background:var(--ink);padding:48px 40px;display:flex;flex-direction:column;justify-content:center;color:var(--white)}
+.login-brand .logo{font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+.login-brand h1{font-size:26px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.login-brand p{color:#9aa3b8;font-size:13px;line-height:1.7}
+.login-brand .features{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.login-brand .features span{font-size:12px;color:#7c8599;display:flex;align-items:center;gap:8px}
+.login-brand .features span::before{content:"";display:inline-block;width:4px;height:4px;background:var(--accent);border-radius:50%}
+.login-form{padding:48px 40px;display:flex;flex-direction:column;justify-content:center}
+.login-form label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--slate);margin-bottom:6px;display:block}
+.login-form input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font:14px var(--font);outline:none;transition:border .15s,box-shadow .15s}
+.login-form input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.login-form .field{margin-bottom:18px}
+.login-form button{width:100%;padding:12px;background:var(--ink);color:var(--white);border:none;border-radius:var(--radius-sm);font:600 13px var(--font);cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-form button:hover{background:#2d3345}
+.login-form button:active{transform:scale(.98)}
+.login-form button:disabled{opacity:.6;cursor:not-allowed}
+.login-form .err{font-size:12px;color:var(--rose);margin-top:8px;min-height:18px;text-align:center}
+.login-form .hint{font-size:11px;color:var(--fog);text-align:center;margin-top:16px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Header */
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.header-left{display:flex;align-items:center;gap:16px}
+.header-left .brand{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+.header-left .backend-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:16px;font-size:13px}
+.header-right .user{color:var(--slate)}
+.btn-ghost{background:none;border:1px solid var(--border);padding:5px 14px;border-radius:var(--radius-sm);font:13px var(--font);color:var(--slate);cursor:pointer;transition:.15s}
+.btn-ghost:hover{background:var(--surface);border-color:var(--line)}
+
+/* Layout */
+.main{padding:24px 28px;max-width:1200px;margin:0 auto}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:box-shadow .2s,transform .2s;cursor:pointer}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.stat-card .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--fog);margin-bottom:8px}
+.stat-card .value{font-size:28px;font-weight:700;letter-spacing:-1px;font-feature-settings:"tnum"}
+.stat-card.total .value{color:var(--ink)}.stat-card.pending .value{color:var(--amber)}
+.stat-card.approved .value{color:var(--green)}.stat-card.rejected .value{color:var(--rose)}
+.stat-card .bar{height:3px;border-radius:2px;margin-top:10px;background:var(--border)}
+.stat-card.total .bar{background:var(--ink)}.stat-card.pending .bar{background:var(--amber)}
+.stat-card.approved .bar{background:var(--green)}.stat-card.rejected .bar{background:var(--rose)}
+.stat-card .sub{font-size:10px;color:var(--fog);margin-top:2px}
+
+/* Panel */
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.panel-head h3{font-size:14px;font-weight:600;letter-spacing:-0.2px}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar input,.toolbar select{padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font:13px var(--font);outline:none;transition:.15s}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.toolbar input{width:200px}
+.btn-primary{background:var(--ink);color:var(--white);border:none;padding:7px 16px;border-radius:var(--radius-sm);font:600 12px var(--font);cursor:pointer;letter-spacing:.3px;transition:.15s}
+.btn-primary:hover{background:#2d3345}.btn-primary:active{transform:scale(.97)}
+.sort-btn{background:none;border:1px solid var(--border);padding:5px 10px;border-radius:var(--radius-sm);font:11px var(--font);color:var(--slate);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.sort-btn:hover{background:var(--surface)}.sort-btn .arrow{font-size:10px}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--fog);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;user-select:none}
+th.sortable{cursor:pointer;transition:color .15s}
+th.sortable:hover{color:var(--accent)}
+td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--slate);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td:last-child{max-width:none;white-space:normal;min-width:160px}
+td:last-child .act-btn{margin-bottom:4px}
+tr{cursor:pointer;transition:background .1s}
+tr:hover td{background:#fafbfd}
+tr:last-child td{border-bottom:none}
+.order-id{font:12px var(--mono);color:var(--ink);letter-spacing:-0.2px}
+.status-pill{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.2px}
+.st-pending{background:var(--amber-soft);color:var(--amber)}
+.st-tostock{background:var(--accent-soft);color:var(--accent)}
+.st-totrans{background:#e8f0ff;color:#3b6fcf}
+.st-intrans{background:#fef3e4;color:#d4790e}
+.st-delivered{background:var(--green-soft);color:var(--green)}
+.st-completed{background:#eef1f6;color:var(--slate)}
+.st-rejected{background:var(--rose-soft);color:var(--rose)}
+.act-btn{padding:4px 12px;border-radius:var(--radius-sm);font:600 11px var(--font);border:none;cursor:pointer;letter-spacing:.3px;transition:.15s;margin-right:4px}
+.act-approve{background:var(--green-soft);color:var(--green)}.act-approve:hover{background:var(--green);color:#fff}
+.act-reject{background:var(--rose-soft);color:var(--rose)}.act-reject:hover{background:var(--rose);color:#fff}
+.act-ship{background:var(--accent-soft);color:var(--accent)}.act-ship:hover{background:var(--accent);color:#fff}
+.act-go{background:#e8f0ff;color:#3b6fcf}.act-go:hover{background:#3b6fcf;color:#fff}
+.act-done{background:var(--green-soft);color:var(--green)}.act-done:hover{background:var(--green);color:#fff}
+.act-complete{background:#eef1f6;color:var(--slate)}.act-complete:hover{background:var(--slate);color:#fff}
+.empty-state{padding:56px 20px;text-align:center;color:var(--fog);font-size:13px}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 0;flex-wrap:wrap}
+.pagination button{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font:12px var(--font);color:var(--slate);cursor:pointer;transition:.15s}
+.pagination button:hover{background:var(--surface)}.pagination button.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.pagination button:disabled{opacity:.3;cursor:default}.pagination .info{font-size:12px;color:var(--fog);margin:0 8px}
+
+/* Drawer */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,17,25,.3);z-index:100;backdrop-filter:blur(2px)}.overlay.show{display:block}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:480px;max-width:100vw;background:var(--white);box-shadow:var(--shadow-lg);z-index:101;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:28px 32px}
+.drawer.open{transform:translateX(0)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.drawer-head h2{font-size:18px;font-weight:600;letter-spacing:-0.3px}
+.drawer-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--slate);padding:4px 8px;border-radius:4px;transition:.15s}.drawer-close:hover{background:var(--surface)}
+.drawer .dl{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.drawer .dl dt{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--fog)}
+.drawer .dl dd{font-size:13px;color:var(--ink);margin-top:2px;word-break:break-all}
+.drawer .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--fog);margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--border)}
+.drawer .audit-log{display:flex;flex-direction:column;gap:8px}
+.drawer .audit-log .entry{display:flex;justify-content:space-between;font-size:13px}
+.drawer .audit-log .entry .who{font-weight:500;color:var(--ink)}.drawer .audit-log .entry .when{color:var(--fog);font-size:12px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,17,25,.3);z-index:100;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(2px)}.modal-overlay.show{display:flex}
+.modal{background:var(--white);border-radius:12px;width:580px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);padding:28px 32px}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:4px;letter-spacing:-0.2px}
+.modal .subtitle{font-size:12px;color:var(--fog);margin-bottom:20px}
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.modal .field{margin-bottom:12px}.modal .field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin-bottom:4px}
+.modal .field input,.modal .field select,.modal .field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font:13px var(--font);outline:none;transition:.15s;resize:vertical}
+.modal .field input:focus,.modal .field select:focus,.modal .field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.modal .field input.error,.modal .field textarea.error{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-soft)}
+.modal .field .err-msg{font-size:11px;color:var(--rose);margin-top:4px;display:none}
+.modal .field input.error+.err-msg,.modal .field textarea.error+.err-msg{display:block}
+.modal .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.modal .btns button{padding:8px 20px;border-radius:var(--radius-sm);font:600 13px var(--font);cursor:pointer;transition:.15s}
+.modal .btns .cancel{background:var(--white);border:1px solid var(--border);color:var(--slate)}.modal .btns .cancel:hover{background:var(--surface)}
+.modal .btns .submit{background:var(--ink);border:none;color:var(--white)}.modal .btns .submit:hover{background:#2d3345}
+.modal .btns .submit:disabled{opacity:.5;cursor:not-allowed}
+.modal .btns .danger{background:var(--rose);border:none;color:var(--white)}.modal .btns .danger:hover{opacity:.9}
+.modal .btns .safe{background:var(--green);border:none;color:var(--white)}.modal .btns .safe:hover{opacity:.9}
+
+/* Confirm modal (smaller) */
+.confirm-modal .modal{width:420px;padding:24px 28px}
+.confirm-modal .modal p{font-size:14px;color:var(--slate);line-height:1.6;margin:12px 0}
+
+/* Toast */
+.toast{position:fixed;top:20px;right:20px;padding:11px 18px;border-radius:var(--radius-sm);font:600 12px var(--font);z-index:200;color:#fff;pointer-events:none;opacity:0;transform:translateY(-8px);transition:.25s}
+.toast.show{opacity:1;transform:translateY(0)}.toast.success{background:var(--green)}.toast.error{background:var(--rose)}
+
+/* Skeleton */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{background:linear-gradient(90deg,var(--border) 25%,#eef1f6 37%,var(--border) 63%);background-size:800px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:var(--radius-sm)}
+.skel-row{display:grid;grid-template-columns:1fr 1.5fr 1fr .8fr 1fr .8fr;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}.skel-row .skeleton{height:14px}
+
+/* Spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+
+/* Mobile */
+@media(max-width:768px){
+  .login-card{grid-template-columns:1fr}.login-brand{padding:32px 28px}.login-form{padding:32px 28px}
+  .stats{grid-template-columns:repeat(2,1fr)}.main{padding:16px}.header{padding:0 16px}
+  .drawer{width:100%}.toolbar input{width:140px}
+  table{font-size:12px}th,td{padding:10px 8px}.modal .row{grid-template-columns:1fr}
+}
+.hidden{display:none!important}
+.stat-card{font:inherit;text-align:left;color:var(--ink)}
+.stat-card.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.module-menu{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.module-menu button{padding:12px 18px}
+.module-menu button.active{background:var(--accent);color:white;border-color:var(--accent)}
+.module-menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.module-menu button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:7px;padding:20px;background:white;min-height:116px;border-left:4px solid var(--accent)}
+.module-menu strong{font-size:17px}.module-menu small{font-size:12px;font-weight:400;line-height:1.6}
+.module-menu .task-count{font-size:12px;font-weight:600}
+.role-note{padding:12px 0 18px;color:var(--slate)}
+.main{display:flex;flex-direction:column}
+.stats{order:10}
+.module-menu .secondary{min-height:46px;padding:10px 14px}
+.module-menu .secondary small,.module-menu .secondary .task-count{display:none}
+.module-menu .secondary strong{font-size:13px}
+#mainPage[data-role="1"]{--accent:#078366;--accent-soft:#e6f7f0}
+#mainPage[data-role="2"]{--accent:#b86a09;--accent-soft:#fff4e3}
+#mainPage[data-role="3"]{--accent:#6552c7;--accent-soft:#f2efff}
+#mainPage:not([data-role="0"]) .stats{display:none}
+td:last-child{min-width:230px}
+.list-context{padding:12px 20px;background:var(--accent-soft);color:var(--slate);font-size:13px}
+.list-error{padding:24px;color:var(--rose)}
+.modal-overlay{z-index:120}
+@media(min-width:1200px){.stats{grid-template-columns:repeat(8,minmax(0,1fr))}}
+
+/* Workbench visual system: persistent navigation + focused resource list. */
+:root{--font:"Segoe UI","Microsoft YaHei",sans-serif;--ink:#172b4d;--slate:#52627b;--fog:#74839a;--surface:#f4f6fa;--border:#e5eaf1;--line:#edf0f5;--accent:#3568df;--accent-soft:#edf3ff;--radius:12px;--radius-sm:7px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:232px;background:#fff;border-right:1px solid var(--border);z-index:60;display:flex;flex-direction:column;padding:28px 16px 20px}
+.side-brand{display:flex;align-items:center;gap:11px;padding:0 12px 28px;font-size:19px;font-weight:750;letter-spacing:.3px}
+.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--accent);color:white;font-size:18px;box-shadow:0 5px 12px #3568df22}
+.side-caption{font-size:11px;color:var(--fog);padding:0 14px 12px;letter-spacing:1px}
+.sidebar .module-menu{display:flex;flex-direction:column;gap:6px;margin:0;overflow-y:auto}
+.sidebar .module-menu button,.sidebar .module-menu .secondary{display:flex;flex-direction:row;align-items:center;gap:10px;min-height:46px;padding:12px;border:0;border-radius:8px;background:transparent;color:var(--slate);box-shadow:none;position:relative}
+.sidebar .module-menu button:hover{background:#f5f7fb;color:var(--accent)}
+.sidebar .module-menu button.active{background:var(--accent-soft);color:var(--accent)}
+.sidebar .module-menu strong,.sidebar .module-menu .secondary strong{font-size:13px;font-weight:550;flex:1}
+.sidebar .module-menu small{display:none}
+.sidebar .module-menu .task-count{display:inline-block;font-size:11px;border-radius:5px;padding:1px 6px;background:#eaf0fa;color:var(--accent)}
+.nav-icon{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.side-foot{margin-top:auto;padding:24px 12px 0;color:var(--fog);font-size:11px;line-height:1.9}
+.side-foot b{color:var(--slate);font-size:12px;font-weight:500}
+.online-dot{display:inline-block;width:6px;height:6px;background:#16a676;border-radius:50%;margin-right:7px}
+.header{margin-left:232px;height:68px;padding:0 32px;background:#ffffffed;backdrop-filter:blur(12px)}
+.header-left .brand{font-size:13px;color:var(--fog);font-weight:400}
+.header-left .backend-tag{border-radius:20px;padding:4px 10px;font-size:11px;letter-spacing:0}
+.header-right .user{background:#f3f6fb;padding:6px 12px;border-radius:20px;font-size:12px}
+.main{margin:0 0 0 232px;max-width:1600px;padding:30px 32px;min-width:0}
+.workspace-intro{border:0;background:transparent;box-shadow:none;margin:0 0 18px;overflow:visible}
+.workspace-intro .eyebrow{font-size:11px;color:var(--fog);letter-spacing:1.5px;margin-bottom:8px}
+.workspace-intro h2{font-size:27px;font-weight:650;letter-spacing:-.7px;margin-bottom:8px;color:var(--ink)}
+.workspace-intro p{font-size:13px;color:var(--slate)}
+.role-note{font-size:12px;padding:12px 16px;margin-bottom:22px;background:#fff;border:1px solid var(--border);border-radius:8px;color:var(--slate);line-height:1.8;border-left:3px solid var(--accent)}
+.tabs{align-self:flex-start;min-width:300px;border:0;border-radius:0;background:transparent;gap:28px;margin-bottom:20px;overflow:visible}
+.tab-btn{flex:none;padding:9px 2px;font-size:13px;background:transparent;border-bottom:2px solid transparent}
+.tab-btn.active{color:var(--accent);background:transparent;border-color:var(--accent)}
+.tab-btn:hover{background:transparent;color:var(--accent)}
+.panel{box-shadow:0 2px 6px #23395703;border-color:var(--border)}
+.panel-head{padding:20px 22px;gap:16px}.panel-head h3{font-size:15px}
+.toolbar input,.toolbar select{height:36px;background:#fff;font-size:12px;border-color:#dfe5ed}
+.toolbar input{width:170px}.sort-btn{height:36px}
+.btn-primary{height:36px;background:var(--accent);border-radius:7px;font-size:12px;box-shadow:0 2px 4px #3568df18}
+.btn-primary:hover{background:var(--accent);filter:brightness(.94)}
+.list-context{background:#fafbfd;color:#738198;font-size:12px;padding:11px 22px;border-bottom:1px solid var(--border)}
+th{font-size:12px;font-weight:500;letter-spacing:0;padding:14px 18px;background:#f7f9fc;color:#63748a}
+td{padding:17px 18px;font-size:13px;color:#42536b}td:last-child{min-width:250px}
+.order-id{font-size:11px;color:#39597b}.status-pill{padding:4px 10px;font-size:11px;font-weight:500}
+.act-btn{font-size:12px;padding:6px 10px;letter-spacing:0;background:transparent;color:var(--accent);margin-right:3px}
+.act-approve{background:var(--accent);color:white}.act-approve:hover{background:#2454c3}
+.act-reject{color:#cc4e64;background:#fff3f5}.act-reject:hover{background:#fce3e9;color:#b22b45}
+.stats{gap:10px;margin-top:4px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat-card{padding:16px 18px;border-radius:10px;position:relative;box-shadow:none}
+.stat-card .label{font-size:12px;font-weight:400;letter-spacing:0;color:#65758b;margin-bottom:6px}
+.stat-card .value{font-size:25px;font-weight:650}.stat-card .bar{display:none}.stat-card .sub{font-size:11px;margin-top:4px}
+.stat-card.active{border-color:#adc3f5;background:#f5f8ff;box-shadow:none}
+.empty-state{padding:64px 24px;color:#7b8aa0}
+.drawer{width:520px;padding:30px}.drawer .dl dt{font-size:12px;letter-spacing:0}.drawer .section-title{font-size:12px;letter-spacing:0}
+.modal{border:1px solid var(--border);box-shadow:0 24px 70px #14294526}.modal h3{font-size:20px}.modal .field label{font-size:12px;letter-spacing:0;font-weight:500}
+#panelUsers{margin:0 0 20px!important}#userCreateForm input,#userCreateForm select{padding:9px 12px;border:1px solid var(--border);border-radius:7px;font:13px var(--font)}
+.login-wrapper{background:radial-gradient(ellipse at 20% 15%,#e7efff,transparent 55%),#f6f8fc}
+.login-card{max-width:860px;border:1px solid #e4eaf4;border-radius:20px;box-shadow:0 24px 80px #1e3e7310}
+.login-brand{background:#183859;position:relative;padding:54px 44px}.login-brand .logo{color:#9bc4ff}.login-brand h1{font-size:32px;line-height:1.5}.login-brand p{color:#b5c7db}.login-brand .features span{color:#b5c7db}
+.login-form{padding:52px 44px}.login-form button{background:#3568df;border-radius:8px;height:44px}.login-form input{background:#f9fbfe}
+@media(min-width:1550px){.stats{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media(max-width:1050px){.sidebar{width:200px;padding-left:10px;padding-right:10px}.header{margin-left:200px;padding:0 20px}.main{margin-left:200px;padding:24px 20px}.header-left .brand{display:none}.toolbar{width:100%}.toolbar input{flex:1}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.sidebar{position:static;width:100%;padding:16px;border-right:0;border-bottom:1px solid var(--border)}.side-brand{padding:0 0 12px}.side-caption,.side-foot{display:none}.sidebar .module-menu{display:flex;flex-direction:row;overflow-x:auto;gap:6px}.sidebar .module-menu button,.sidebar .module-menu .secondary{min-width:max-content;min-height:40px;padding:10px}.header{margin-left:0;padding:0 16px;height:56px}.main{margin:0;padding:22px 14px}.workspace-intro h2{font-size:23px}.role-note{margin-bottom:14px}.tabs{gap:22px;min-width:0}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-head{padding:16px}.toolbar{gap:7px}.toolbar input{min-width:130px}.drawer{width:100%}.login-brand{padding:30px}.login-form{padding:30px}.header-right{gap:8px}.header-left .backend-tag{font-size:10px}}
+
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginPage" class="login-wrapper">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo">LMS v4.0</div>
+      <h1>智能物流<br>管理系统</h1>
+      <p>让每一张订单，都有清晰的下一步。<br>连接客服、仓储与运输团队。</p>
+      <div class="features"><span>按岗位进入专属工作台</span><span>订单全流程管理</span><span>业务进度清晰可查</span></div>
+    </div>
+    <div class="login-form">
+      <div class="field"><label>用户名</label><input id="loginUser" placeholder="admin" autofocus></div>
+      <div class="field"><label>密码</label><input id="loginPass" type="password" placeholder="请输入对应账号的密码"></div>
+      <button onclick="doLogin()" id="loginBtn">登 录</button>
+      <div class="err" id="loginMsg"></div>
+      <div class="hint">学习账号：customer / customer123（客服）<br>admin / admin123（管理员）<br>storage / storage123（仓储）；dispatch / dispatch123（调度）</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div id="mainPage" class="hidden">
+  <aside class="sidebar"><div class="side-brand"><span class="brand-mark">L</span>LMS <span style="font-size:10px;color:#8797ad;font-weight:500">WORKSPACE</span></div><div class="side-caption">业务工作台</div><div id="sideNavigation"></div><div class="side-foot"><b id="sideRole"></b><br><span class="online-dot"></span>本地学习环境 · LMS 4.0</div></aside>
+  <header class="header">
+    <div class="header-left">
+      <span class="brand">智能物流管理系统</span>
+      <span class="backend-tag" id="backendBadge"></span>
+    </div>
+    <div class="header-right">
+      <span class="user" id="currentUser"></span>
+      <button class="btn-ghost" onclick="logout()">退出</button>
+    </div>
+  </header>
+  <div class="main">
+    <section class="workspace-intro">
+      <div class="eyebrow">工作空间 / 物流协作</div>
+      <h2 id="workspaceTitle"></h2><p id="workspaceHint"></p>
+    </section>
+    <p class="role-note" id="rolePermissions"></p>
+    <nav class="module-menu" aria-label="业务菜单">
+      <button class="btn-ghost hidden" id="menuCreate" onclick="showCreateModal()">创建订单</button>
+      <button class="btn-ghost hidden" id="menuReview" onclick="openOrderModule('review')">订单审核</button>
+      <button class="btn-ghost" id="menuQuery" onclick="openOrderModule('query')">订单查询</button>
+      <button class="btn-ghost hidden" id="menuModify" onclick="openOrderModule('modify')">订单修改</button>
+      <button class="btn-ghost" id="menuTrack" onclick="openOrderModule('track')">订单跟踪</button>
+      <button class="btn-ghost hidden" id="menuStock" onclick="filterStatus('2')">出库办理</button>
+    </nav>
+    <!-- Stats (clickable) -->
+    <div class="stats">
+      <button type="button" class="stat-card total" data-status="" aria-pressed="false" onclick="filterStatus('')"><div class="label">全部订单</div><div class="value" id="statTotal">-</div><div class="sub" id="statTotalSub"></div><div class="bar"></div></button>
+      <button type="button" class="stat-card pending" data-status="0" aria-pressed="false" onclick="filterStatus('0')"><div class="label">待审核</div><div class="value" id="statPending">-</div><div class="sub">点击查看列表</div><div class="bar"></div></button>
+      <button type="button" class="stat-card" style="--card-clr:var(--accent)" data-status="2" aria-pressed="false" onclick="filterStatus('2')"><div class="label">待出库</div><div class="value" id="statToStock" style="color:var(--accent)">-</div><div class="sub">点击查看列表</div><div class="bar" style="background:var(--accent)"></div></button>
+      <button type="button" class="stat-card" style="--card-clr:#d4790e" data-status="3" aria-pressed="false" onclick="filterStatus('3')"><div class="label">待运输</div><div class="value" id="statToTrans" style="color:#d4790e">-</div><div class="sub">已出库待发车</div><div class="bar" style="background:#d4790e"></div></button>
+      <button type="button" class="stat-card" style="--card-clr:#d4790e" data-status="4" aria-pressed="false" onclick="filterStatus('4')"><div class="label">运输中</div><div class="value" id="statInTrans" style="color:#d4790e">-</div><div class="sub">点击查看列表</div><div class="bar" style="background:#d4790e"></div></button>
+      <button type="button" class="stat-card" style="--card-clr:var(--green)" data-status="5" aria-pressed="false" onclick="filterStatus('5')"><div class="label">已送达</div><div class="value" id="statDelivered" style="color:var(--green)">-</div><div class="sub">待确认完成</div><div class="bar" style="background:var(--green)"></div></button>
+      <button type="button" class="stat-card" style="--card-clr:var(--slate)" data-status="6" aria-pressed="false" onclick="filterStatus('6')"><div class="label">已完成</div><div class="value" id="statCompleted" style="color:var(--slate)">-</div><div class="sub">点击查看列表</div><div class="bar" style="background:var(--slate)"></div></button>
+      <button type="button" class="stat-card rejected" data-status="1" aria-pressed="false" onclick="filterStatus('1')"><div class="label">已驳回</div><div class="value" id="statRejected">-</div><div class="sub">点击查看列表</div><div class="bar"></div></button>
+    </div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tabOrders" onclick="switchTab('orders')">订单管理</button>
+      <button class="tab-btn" id="tabTransport" onclick="switchTab('transport')">运输管理</button>
+      <button class="tab-btn hidden" id="tabUsers" onclick="switchTab('users')">用户管理</button>
+    </div>
+    <!-- Orders -->
+    <div class="panel" id="panelOrders">
+      <div class="panel-head">
+        <h3 id="orderPanelTitle">订单列表</h3>
+        <div class="toolbar">
+          <input type="text" id="searchInput" placeholder="搜索客户 / 编号…" oninput="debounceSearch()">
+          <select id="statusFilter" onchange="loadOrders(1)">
+            <option value="">全部状态</option><option value="0">待审核</option><option value="2">待出库</option><option value="3">待运输</option><option value="4">运输中</option><option value="5">已送达</option><option value="6">已完成</option><option value="1">已驳回</option>
+          </select>
+          <button class="sort-btn" onclick="toggleSort()" id="sortBtn">⏱ 最新优先 <span class="arrow">▼</span></button>
+          <button class="btn-primary hidden" id="newOrderButton" onclick="showCreateModal()">+ 新建订单</button>
+        </div>
+      </div>
+      <div class="list-context" id="orderContext" aria-live="polite"></div>
+      <form id="trackLookup" class="toolbar hidden" style="padding:16px 20px" onsubmit="event.preventDefault();lookupTracking()">
+        <label for="trackOrderId">精确订单编号</label><input id="trackOrderId" placeholder="输入完整订单编号" required>
+        <button class="btn-primary">追踪订单</button><span id="trackError" role="alert"></span>
+      </form>
+      <div class="list-error hidden" id="orderError" role="alert"><span id="orderErrorText"></span> <button class="btn-ghost" onclick="loadOrders(1)">重试</button></div>
+      <div id="skelWrap">
+        <div class="skel-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="skel-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="skel-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      </div>
+      <div class="table-wrap hidden" id="tableWrap">
+        <table><thead><tr>
+          <th>订单编号</th><th>客户</th><th>货物</th><th>重量</th><th>状态</th>
+          <th class="sortable" onclick="toggleSort()" id="thTime">创建时间 <span class="arrow" id="sortArrow">▼</span></th>
+          <th>操作</th>
+        </tr></thead><tbody id="orderTable"></tbody></table>
+        <div class="empty-state hidden" id="emptyState">暂无匹配的订单</div>
+      </div>
+      <div class="pagination hidden" id="pagination"></div>
+    </div>
+    <!-- Transport -->
+    <div class="panel hidden" id="panelTransport">
+      <div class="panel-head">
+        <h3>运输任务</h3>
+        <div class="toolbar">
+          <select id="transportStatusFilter" onchange="loadTransport(1)">
+            <option value="3">待运输（已出库）</option>
+            <option value="4">运输中</option>
+            <option value="5">已送达</option>
+          </select>
+          <button class="btn-primary" onclick="loadTransport(1)">刷新</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr>
+          <th>订单编号</th><th>客户</th><th>货物</th><th>重量</th><th>发货地址</th><th>收货地址</th><th>状态</th><th>操作</th>
+        </tr></thead><tbody id="transportTable"></tbody></table>
+        <div class="empty-state hidden" id="transportEmpty">暂无运输任务</div>
+      </div>
+      <div class="pagination hidden" id="transportPagination"></div>
+    </div>
+<div class="panel hidden" id="panelUsers" style="margin:0 24px 24px">
+  <div class="panel-head"><h3>用户管理</h3><div class="toolbar">
+    <input id="userSearch" placeholder="搜索用户名"><button class="btn-primary" onclick="loadUsers(1)">查询</button>
+  </div></div>
+  <form id="userCreateForm" style="padding:20px;display:flex;gap:12px;flex-wrap:wrap" onsubmit="event.preventDefault();createUser()">
+    <input id="newUsername" placeholder="新用户名" required maxlength="49" autocomplete="off">
+    <input id="newUserPassword" type="password" placeholder="初始密码（至少6位）" required minlength="6" maxlength="49" autocomplete="new-password">
+    <select id="newUserRole"><option value="3">客服</option><option value="1">仓储员</option><option value="2">调度员</option><option value="0">管理员</option></select>
+    <button class="btn-primary" id="createUserButton">创建用户</button>
+  </form>
+  <div class="table-wrap"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="userTable"></tbody></table>
+  <div class="empty-state hidden" id="usersEmpty">暂无匹配的用户</div></div>
+  <div class="pagination" id="usersPagination"></div>
+</div>
+
+  </div>
+</div>
+
+<!-- ===== ORDER DETAIL DRAWER ===== -->
+<div class="overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h2>订单详情</h2><button class="drawer-close" onclick="closeDrawer()">✕</button></div>
+  <div class="dl" id="drawerBasic"></div>
+  <div class="section-title">货物信息</div><div class="dl" id="drawerCargo"></div>
+  <div class="section-title">创建与最近处理记录</div><div class="audit-log" id="drawerAudit"></div>
+  <div style="margin-top:24px;display:flex;gap:8px" id="drawerActions"></div>
+</div>
+
+<!-- ===== CONFIRM MODAL (approve/reject) ===== -->
+<div class="modal-overlay confirm-modal" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmMsg"></p>
+    <div class="btns">
+      <button class="cancel" onclick="closeConfirm()">取消</button>
+      <button class="safe" id="confirmApproveBtn" style="display:none" onclick="execApprove()">确认通过</button>
+      <button class="danger" id="confirmRejectBtn" style="display:none">确认驳回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REJECT REASON MODAL ===== -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <h3>驳回订单</h3>
+    <div class="subtitle" id="rejectOrderId"></div>
+    <div class="field">
+      <label>驳回原因 *</label>
+      <textarea id="rejectReason" rows="3" placeholder="请详细填写驳回原因，便于后续追溯…"></textarea>
+      <div class="err-msg" id="rejectErr">请填写驳回原因</div>
+    </div>
+    <div class="btns">
+      <button class="cancel" onclick="closeRejectModal()">取消</button>
+      <button class="danger" onclick="execReject()">确认驳回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREATE MODAL ===== -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <h3>新建订单</h3>
+    <div class="subtitle">带 * 为必填项</div>
+    <p id="createError" role="alert" style="color:var(--rose);font-size:13px;margin-bottom:12px"></p>
+    <div class="row">
+      <div class="field"><label>客户姓名 *</label><input id="oc_name" onblur="validateField(this)"><div class="err-msg">请输入客户姓名</div></div>
+      <div class="field"><label>联系电话</label><input id="oc_phone"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>货物名称 *</label><input id="oc_cargo" onblur="validateField(this)"><div class="err-msg">请输入货物名称</div></div>
+      <div class="field"><label>货物类型</label><select id="oc_type"><option value="0">普通</option><option value="1">易碎</option><option value="2">冷链</option><option value="3">危险品</option></select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>重量 (kg)</label><input id="oc_weight" type="number" step="0.1"></div>
+      <div class="field"><label>数量</label><input id="oc_qty" type="number" value="1"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>发货地址</label><input id="oc_from"></div>
+      <div class="field"><label>收货地址</label><input id="oc_to"></div>
+    </div>
+    <div class="btns">
+      <button class="cancel" onclick="closeCreateModal()">取消</button>
+      <button class="submit" onclick="createOrder()" id="createBtn">提交订单</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== State ========== */
+const API = '';
+let token = localStorage.getItem('lms_token');
+let currentUser = null, activeTab = 'orders', editingOrderId = null, editingRevision = null;
+let currentPage = 1, currentStatus = '', currentSearch = '', sortAsc = false;
+let pendingApproveId = null, pendingRejectId = null;
+let searchTimer, orderRequest = 0, orderModule = 'query';
+
+/* ========== API (with 401 interception) ========== */
+async function api(method, path, body) {
+  const opts = {method, headers:{'Content-Type':'application/json'}};
+  const isLogin = path === '/api/auth/login';
+  const requestToken = token;
+  if (token && !isLogin) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  if (!isLogin && requestToken !== token) throw new Error('登录身份已切换，请重试');
+  if (r.status === 401 && !isLogin) {
+    localStorage.removeItem('lms_token');
+    token = null;
+    currentUser = null;
+    closeDrawer(); closeConfirm(); closeRejectModal(); closeCreateModal();
+    document.getElementById('mainPage').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('loginMsg').textContent = '登录状态已失效，请重新登录（服务重启后也需要重新登录）';
+    throw new Error('登录状态已失效，请重新登录');
+  }
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+
+/* ========== Toast ========== */
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ========== Field validation ========== */
+function validateField(el) {
+  if (!el.value.trim()) el.classList.add('error');
+  else el.classList.remove('error');
+}
+
+/* ========== Login ========== */
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
+
+async function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  const msg = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
+  const card = document.querySelector('.login-form');
+  if (btn.disabled) return;
+  msg.textContent = '';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 登录中…';
+  try {
+    const d = await api('POST', '/api/auth/login', { username: u, password: p });
+    token = d.token;
+    localStorage.setItem('lms_token', token);
+    applyWorkspace(d.user);
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('mainPage').classList.remove('hidden');
+    await checkStatus();
+    await refreshAll();
+  } catch (e) {
+    msg.textContent = e.message || '登录失败，请重试';
+    card.style.animation = 'shake .4s';
+    setTimeout(() => card.style.animation = '', 400);
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+  btn.disabled = false; btn.innerHTML = '登 录';
+}
+
+function logout() { localStorage.removeItem('lms_token'); token = null; location.reload(); }
+
+/* ========== Role workspaces (server remains the authority) ========== */
+const workspaces = {
+  0: {title:'管理员工作台',hint:'先审核待审核订单；也可管理用户、查询和处理全部业务。',status:'0',tab:'orders',list:'订单审核与查询'},
+  1: {title:'仓储工作台',hint:'查看待出库订单并确认出库；订单查询可查看其他状态。',status:'2',tab:'orders',list:'出库与订单查询'},
+  2: {title:'调度工作台',hint:'安排发车、确认送达；可切换到订单查询查看全流程。',status:'',tab:'transport',list:'订单查询'},
+  3: {title:'客服工作台',hint:'录入订单、修改待审核订单；送达后由客服确认完成。',status:'',tab:'orders',list:'客户订单'}
+};
+const roleMenus = {
+  0:[['menuReview','待审核订单','检查客户与货物信息，审核通过或填写原因驳回。',"openOrderModule('review')",'statPending'],
+     ['menuUsers','账号与角色管理','查询员工、创建账号、重置密码。',"switchTab('users')"],
+     ['menuQuery','全部订单查询','查看各状态订单，按单号或客户查询。',"openOrderModule('query')"],
+     ['menuTrack','订单跟踪','按完整单号查询当前状态和最近处理记录。',"openOrderModule('track')"],
+     ['menuCreate','创建订单','管理员可代办客服录单。','showCreateModal()'],
+     ['menuModify','修改待审核订单','管理员可代办修改，审核后不能修改。',"openOrderModule('modify')"],
+     ['menuStock','出库办理','管理员可代办仓储出库。',"filterStatus('2')",'statToStock']],
+  1:[['menuStock','待办：确认出库','只对待出库订单办理；出库后转交调度员。',"filterStatus('2')",'statToStock'],
+     ['menuQuery','仓储订单查询','查询订单与收发地址，其他环节仅查看。',"openOrderModule('query')"],
+     ['menuTrack','订单跟踪','核对当前状态与最近处理人。',"openOrderModule('track')"]],
+  2:[['menuDispatch','待办：安排发车','查看已出库、待运输订单，确认开始运输。',"openTransportTask('3')",'statToTrans'],
+     ['menuDeliver','待办：确认送达','查看运输中订单，送达后交客服确认完成。',"openTransportTask('4')",'statInTrans'],
+     ['menuDelivered','已送达记录','查看已送达订单，不代替客服确认完成。',"openTransportTask('5')",'statDelivered'],
+     ['menuQuery','运输订单查询','按单号或客户查询订单。',"openOrderModule('query')"],
+     ['menuTrack','订单跟踪','核对当前状态与最近处理人。',"openOrderModule('track')"]],
+  3:[['menuCreate','录入新订单','填写客户、货物和收发地址，提交给管理员审核。','showCreateModal()'],
+     ['menuModify','待审核订单修改','审核前可以修改；审核通过由管理员操作。',"openOrderModule('modify')",'statPending'],
+     ['menuComplete','待办：确认完成','仅对已送达订单确认完成。',"filterStatus('5')",'statDelivered'],
+     ['menuQuery','客户订单查询','按客户姓名或单号查询订单。',"openOrderModule('query')"],
+     ['menuTrack','订单跟踪','输入完整单号，向客户确认当前状态。',"openOrderModule('track')"]]
+};
+const rolePermissionText={
+  0:'当前权限：审核通过 / 审核驳回、账号管理，并可代办其他角色业务。审核按钮只出现在待审核订单上。',
+  1:'当前权限：确认出库、查询与跟踪。订单审核由管理员办理，发车与送达由调度员办理。',
+  2:'当前权限：安排发车、确认送达、查询与跟踪。审核由管理员办理，出库由仓储员办理。',
+  3:'当前权限：建单、修改待审核订单、确认完成、查询与跟踪。审核由管理员办理，客服没有审批权限。'
+};
+function renderRoleMenu(role) {
+  document.getElementById('sideNavigation').appendChild(document.querySelector('.module-menu'));
+  document.getElementById('sideRole').textContent=workspaces[role].title;
+  const navIcon='<svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h4"/></svg>';
+  document.querySelector('.module-menu').innerHTML=roleMenus[role].map(([id,title,hint,handler,count],index)=>
+    `<button class="btn-ghost${index>=3?' secondary':''}" id="${id}" onclick="${handler}">${navIcon}<strong>${title}</strong><small>${hint}</small>${count?`<span class="task-count" data-count="${count}">…</span>`:''}</button>`).join('');
+  document.getElementById('mainPage').dataset.role=String(role);
+  document.getElementById('rolePermissions').textContent=rolePermissionText[role];
+}
+function openTransportTask(status) {
+  document.getElementById('transportStatusFilter').value=status;
+  return switchTab('transport');
+}
+function can(action) {
+  const role = currentUser?.role_id;
+  if (!Number.isInteger(role) || !workspaces[role]) return false;
+  return role === 0 || ({create:[3],modify:[3],approve:[],reject:[],users:[],
+    'out-stock':[1],'start-transport':[2],deliver:[2],complete:[3]}[action] || []).includes(role);
+}
+function applyWorkspace(user) {
+  if (!workspaces[user.role_id]) throw new Error('账号角色无效');
+  currentUser=user;
+  orderModule=user.role_id===0?'review':'query';
+  renderRoleMenu(user.role_id);
+  const workspace=workspaces[user.role_id];
+  document.getElementById('currentUser').textContent=user.username+' · '+user.role;
+  document.getElementById('workspaceTitle').textContent=workspace.title;
+  document.getElementById('workspaceHint').textContent=workspace.hint;
+  document.getElementById('orderPanelTitle').textContent=workspace.list;
+  document.getElementById('tabOrders').textContent=user.role_id===2?'订单查询':'订单管理';
+  document.getElementById('tabTransport').classList.toggle('hidden', ![0,2].includes(user.role_id));
+  document.getElementById('tabUsers').classList.toggle('hidden', !can('users'));
+  document.getElementById('newOrderButton').classList.toggle('hidden', !can('create'));
+  document.getElementById('statusFilter').value=workspace.status;
+  document.getElementById('searchInput').value='';
+  document.getElementById('transportStatusFilter').value='3';
+  document.getElementById('orderTable').innerHTML='';
+  document.getElementById('transportTable').innerHTML='';
+  document.getElementById('userTable').innerHTML='';
+  closeDrawer();closeConfirm();closeRejectModal();closeCreateModal();
+  switchTab(workspace.tab,false);
+}
+function actionButtons(order) {
+  const id=encodeURIComponent(order.order_id).replace(/'/g,'%27');
+  const actions={0:[['approve','审核通过','confirmApprove','act-approve'],['reject','审核驳回','confirmReject','act-reject'],['modify','修改','editOrder','act-ship']],
+    2:[['out-stock','出库','confirmOutStock','act-ship']],3:[['start-transport','发车','confirmStartTransport','act-go']],
+    4:[['deliver','确认送达','confirmDeliver','act-done']],5:[['complete','确认完成','confirmComplete','act-complete']]};
+  const buttons=(actions[order.status_id]||[]).filter(([action])=>can(action)).map(([action,label,handler,style])=>
+    `<button class="act-btn ${style}" data-action="${action}" onclick="${handler}('${id}')">${label}</button>`).join('');
+  const waits={0:'待管理员审核',1:'已驳回',2:'待仓储员出库',3:'待调度员发车',4:'待调度员确认送达',5:'待客服确认完成',6:'已完成，无需操作'};
+  return buttons || `<span style="font-size:12px;color:var(--fog)">${waits[order.status_id]||'仅可查看'}</span>`;
+}
+let usersPage=1;
+async function loadUsers(page=1) {
+  if (!can('users')) return;
+  usersPage=page;
+  try {
+    const params=new URLSearchParams({page:String(page),page_size:'15',keyword:document.getElementById('userSearch').value.trim()});
+    const data=await api('GET','/api/users?'+params);
+    document.getElementById('userTable').innerHTML=data.items.map(user=>`<tr><td>${esc(user.username)}</td><td>${esc(user.role)}</td><td>${user.status==='active'?'可用':'锁定'}</td><td><button class="act-btn act-reject" onclick="resetUser('${encodeURIComponent(user.username).replace(/'/g,'%27')}',${user.id})">重置密码</button></td></tr>`).join('');
+    document.getElementById('usersEmpty').classList.toggle('hidden',data.items.length>0);
+    document.getElementById('usersPagination').innerHTML=`<button ${page<=1?'disabled':''} onclick="loadUsers(${page-1})">上一页</button><span>${page} / ${data.total_pages}</span><button ${page>=data.total_pages?'disabled':''} onclick="loadUsers(${page+1})">下一页</button>`;
+  } catch(error) { toast(error.message,'error'); }
+}
+async function createUser() {
+  if (!can('users')) return;
+  const button=document.getElementById('createUserButton');button.disabled=true;
+  try {
+    await api('POST','/api/users',{username:document.getElementById('newUsername').value,password:document.getElementById('newUserPassword').value,role:Number(document.getElementById('newUserRole').value)});
+    document.getElementById('userCreateForm').reset();toast('用户已创建','success');await loadUsers(1);
+  } catch(error) { toast(error.message,'error'); }
+  finally { button.disabled=false; }
+}
+async function resetUser(encodedName,id) {
+  if (!can('users')) return;
+  const name=decodeURIComponent(encodedName);
+  if (!window.confirm(`确定将 ${name} 的密码重置为 888888 吗？`)) return;
+  try { await api('POST',`/api/users/${id}/reset-password`,{username:name});toast('密码已重置为 888888','success'); }
+  catch(error) { toast(error.message,'error'); }
+}
+
+/* ========== Status ========== */
+async function checkStatus() {
+  try {
+    const d = await api('GET', '/api/status');
+    const tag = document.getElementById('backendBadge');
+    tag.textContent = d.backend.includes('MySQL')?'MySQL 数据库':'本地文件存储';
+    const isMysql = d.backend.includes('MySQL');
+    tag.style.background = isMysql ? 'var(--green-soft)' : 'var(--amber-soft)';
+    tag.style.color = isMysql ? 'var(--green)' : 'var(--amber)';
+  } catch (e) {}
+}
+
+/* ========== Stats ========== */
+async function loadStats() {
+  try {
+    const [all, pending, tostock, totrans, intrans, delivered, completed, rejected] = await Promise.all([
+      api('GET', '/api/orders?page_size=1'),
+      api('GET', '/api/orders?page_size=1&status=0'),
+      api('GET', '/api/orders?page_size=1&status=2'),
+      api('GET', '/api/orders?page_size=1&status=3'),
+      api('GET', '/api/orders?page_size=1&status=4'),
+      api('GET', '/api/orders?page_size=1&status=5'),
+      api('GET', '/api/orders?page_size=1&status=6'),
+      api('GET', '/api/orders?page_size=1&status=1')
+    ]);
+    const tc = all.total_count || 0;
+    document.getElementById('statTotal').textContent = tc;
+    document.getElementById('statTotalSub').textContent = tc > 0 ? `共 ${tc} 条` : '';
+    document.getElementById('statPending').textContent = pending.total_count || 0;
+    document.getElementById('statToStock').textContent = tostock.total_count || 0;
+    document.getElementById('statToTrans').textContent = totrans.total_count || 0;
+    document.getElementById('statInTrans').textContent = intrans.total_count || 0;
+    document.getElementById('statDelivered').textContent = delivered.total_count || 0;
+    document.getElementById('statCompleted').textContent = completed.total_count || 0;
+    document.getElementById('statRejected').textContent = rejected.total_count || 0;
+    document.querySelectorAll('[data-count]').forEach(el=>el.textContent=document.getElementById(el.dataset.count).textContent);
+  } catch (e) {}
+}
+
+/* ========== Sort ========== */
+function toggleSort() {
+  sortAsc = !sortAsc;
+  const btn = document.getElementById('sortBtn');
+  const arrow = document.getElementById('sortArrow');
+  if (sortAsc) {
+    btn.innerHTML = '⏱ 最早优先 <span class="arrow">▲</span>';
+    if (arrow) arrow.textContent = '▲';
+  } else {
+    btn.innerHTML = '⏱ 最新优先 <span class="arrow">▼</span>';
+    if (arrow) arrow.textContent = '▼';
+  }
+  loadOrders(1);
+}
+
+/* ========== Filter by stat card ========== */
+const statusNames = {'':'全部订单','0':'待审核','1':'已驳回','2':'待出库','3':'待运输','4':'运输中','5':'已送达','6':'已完成'};
+function openOrderModule(module) {
+  if (module==='review' && !can('approve') || module==='modify' && !can('modify')) return;
+  orderModule=module;
+  return filterStatus(module==='review'||module==='modify'?'0':'',true);
+}
+function filterStatus(status,keepModule=false) {
+  clearTimeout(searchTimer);
+  if (!keepModule) orderModule=status==='0'&&can('approve')?'review':'query';
+  document.getElementById('statusFilter').value = status;
+  document.getElementById('searchInput').value = '';
+  switchTab('orders',false);
+  return loadOrders(1);
+}
+function updateOrderContext() {
+  const title={review:'订单审核中心',query:'订单查询',modify:'订单信息修改',track:'订单全流程跟踪'}[orderModule];
+  const hint={review:'点击订单右侧“通过”或“驳回”；通过后进入待出库。',query:'点击“查看详情”或订单行；右侧显示当前身份可办理的操作。',modify:'仅待审核订单可以修改，点击右侧“修改”打开表单。',track:'输入完整单号或点击订单行，查看当前状态、创建和最近处理记录。'}[orderModule];
+  document.getElementById('trackLookup').classList.toggle('hidden',orderModule!=='track');
+  document.getElementById('orderPanelTitle').textContent=title+' · '+statusNames[currentStatus];
+  document.getElementById('orderContext').textContent='当前查看：'+statusNames[currentStatus]+(currentSearch?'；关键词：'+currentSearch:'')+'。'+hint;
+  document.querySelectorAll('.stat-card').forEach(card=>{
+    const selected=activeTab==='orders'&&card.dataset.status===currentStatus;
+    card.classList.toggle('active',selected);card.setAttribute('aria-pressed',String(selected));
+  });
+  for(const [id,module] of [['menuReview','review'],['menuQuery','query'],['menuModify','modify'],['menuTrack','track']])
+    document.getElementById(id)?.classList.toggle('active',activeTab==='orders'&&orderModule===module);
+  document.getElementById('menuUsers')?.classList.toggle('active',activeTab==='users');
+  document.getElementById('menuStock')?.classList.toggle('active',activeTab==='orders'&&currentStatus==='2');
+  document.getElementById('menuComplete')?.classList.toggle('active',activeTab==='orders'&&currentStatus==='5');
+  for(const [id,status] of [['menuDispatch','3'],['menuDeliver','4'],['menuDelivered','5']])
+    document.getElementById(id)?.classList.toggle('active',activeTab==='transport'&&document.getElementById('transportStatusFilter').value===status);
+}
+async function lookupTracking() {
+  const id=document.getElementById('trackOrderId').value.trim();
+  document.getElementById('trackError').textContent='';
+  if (!id) {document.getElementById('trackError').textContent='请输入完整订单编号';return;}
+  const found=await showDetail(id);
+  if (!found) document.getElementById('trackError').textContent='未找到订单或查询失败，请检查单号后重试。';
+}
+
+/* ========== Orders ========== */
+async function loadOrders(page) {
+  const request=++orderRequest;
+  currentPage = page || currentPage;
+  currentStatus = document.getElementById('statusFilter').value;
+  if (['review','modify'].includes(orderModule) && currentStatus!=='0') orderModule='query';
+  currentSearch = document.getElementById('searchInput').value.trim();
+  updateOrderContext();
+  document.getElementById('orderError').classList.add('hidden');
+
+  const params = new URLSearchParams();
+  params.set('page', currentPage);
+  params.set('page_size', '15');
+  if (currentStatus) params.set('status', currentStatus);
+  if (currentSearch) params.set('keyword', currentSearch);
+
+  document.getElementById('skelWrap').classList.remove('hidden');
+  document.getElementById('tableWrap').classList.add('hidden');
+  document.getElementById('pagination').classList.add('hidden');
+
+  try {
+    const d = await api('GET', '/api/orders?' + params.toString());
+    if(request!==orderRequest) return;
+    document.getElementById('orderContext').textContent += ' 共 '+d.total_count+' 条。';
+    document.getElementById('skelWrap').classList.add('hidden');
+    document.getElementById('tableWrap').classList.remove('hidden');
+
+    const tbody = document.getElementById('orderTable');
+    const empty = document.getElementById('emptyState');
+
+    let items = d.items || [];
+    // Client-side sort by create_time
+    items.sort((a, b) => {
+      const ta = a.create_time || '', tb = b.create_time || '';
+      return sortAsc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+    });
+
+    if (items.length === 0) {
+      tbody.innerHTML = '';
+      empty.textContent='暂无'+statusNames[currentStatus]+'记录'+(currentSearch?'（请检查关键词，或点击状态卡清除搜索）':'；可切换其他状态查看。');
+      empty.classList.remove('hidden');
+      document.getElementById('pagination').classList.add('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = items.map(o => {
+      const scMap = {0:'pending',1:'rejected',2:'tostock',3:'totrans',4:'intrans',5:'delivered',6:'completed'};
+      const sc = scMap[o.status_id] || 'pending';
+      const opHtml = actionButtons(o);
+      return `<tr data-order-id="${esc(o.order_id)}" onclick="showDetail('${o.order_id}')">
+        <td><span class="order-id" title="${esc(o.order_id)}">${o.order_id}</span></td>
+        <td title="${esc(o.customer_name)}">${esc(o.customer_name)}</td>
+        <td title="${esc(o.cargo_name)}">${esc(o.cargo_name)}</td>
+        <td>${o.cargo_weight}kg ×${o.cargo_quantity}</td>
+        <td><span class="status-pill st-${sc}">${o.status}</span></td>
+        <td>${(o.create_time||'').substring(0,16)}</td>
+        <td onclick="event.stopPropagation()"><button class="act-btn act-ship" onclick="showDetail('${o.order_id}')">查看详情</button>${opHtml}</td>
+      </tr>`;
+    }).join('');
+
+    renderPagination(d.current_page, d.total_pages);
+  } catch (e) {
+    if(request!==orderRequest) return;
+    document.getElementById('skelWrap').classList.add('hidden');
+    document.getElementById('orderErrorText').textContent='订单加载失败：'+e.message;
+    document.getElementById('orderError').classList.remove('hidden');
+  }
+}
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+function stClass(sid) {
+  const m = {0:'pending',1:'rejected',2:'tostock',3:'totrans',4:'intrans',5:'delivered',6:'completed'};
+  return m[sid] || 'pending';
+}
+
+function refreshAll() { return Promise.all([loadStats(), activeTab==='transport'?loadTransport(1):activeTab==='users'?loadUsers(1):loadOrders(1)]); }
+function debounceSearch() { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadOrders(1), 300); }
+
+/* ========== Tabs ========== */
+function switchTab(tab,load=true) {
+  if (tab==='users' && !can('users')) return;
+  if (tab==='transport' && ![0,2].includes(currentUser?.role_id)) return;
+  activeTab=tab;
+  updateOrderContext();
+  for (const name of ['orders','transport','users']) {
+    const suffix=name[0].toUpperCase()+name.slice(1);
+    document.getElementById('tab'+suffix).classList.toggle('active',name===tab);
+    document.getElementById('panel'+suffix).classList.toggle('hidden',name!==tab);
+  }
+  if (load) return tab==='transport'?loadTransport(1):tab==='users'?loadUsers(1):loadOrders(1);
+}
+
+/* ========== Transport ========== */
+let transportPage = 1;
+async function loadTransport(page) {
+  transportPage = page || transportPage;
+  const status = document.getElementById('transportStatusFilter').value;
+  updateOrderContext();
+  const params = new URLSearchParams();
+  params.set('page', transportPage);
+  params.set('page_size', '15');
+  params.set('status', status);
+  try {
+    const d = await api('GET', '/api/orders?' + params.toString());
+    const items = d.items || [];
+    const tbody = document.getElementById('transportTable');
+    const empty = document.getElementById('transportEmpty');
+    if (items.length === 0) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      document.getElementById('transportPagination').classList.add('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    const scMap = {3:'totrans',4:'intrans',5:'delivered'};
+    tbody.innerHTML = items.map(o => {
+      const sc = scMap[o.status_id] || 'pending';
+      const btnHtml = actionButtons(o);
+      return `<tr data-order-id="${esc(o.order_id)}" onclick="showDetail('${o.order_id}')"><td><span class="order-id">${o.order_id}</span></td><td title="${esc(o.customer_name)}">${esc(o.customer_name)}</td><td title="${esc(o.cargo_name)}">${esc(o.cargo_name)}</td><td>${o.cargo_weight}kg ×${o.cargo_quantity}</td><td title="${esc(o.sender_address||'')}">${(o.sender_address||'').substring(0,12)}</td><td title="${esc(o.receiver_address||'')}">${(o.receiver_address||'').substring(0,12)}</td><td><span class="status-pill st-${sc}">${o.status}</span></td><td onclick="event.stopPropagation()">${btnHtml}<span style="font-size:10px;color:var(--fog);margin-left:4px">${esc(o.auditor)||'-'}<br>${(o.audit_time||'').substring(0,10)}</span></td></tr>`;
+    }).join('');
+    renderTransportPagination(d.current_page, d.total_pages);
+  } catch (e) {}
+}
+function renderTransportPagination(page, total) {
+  const pg = document.getElementById('transportPagination');
+  if (total <= 1) { pg.classList.add('hidden'); return; }
+  pg.classList.remove('hidden');
+  let html = `<button ${page<=1?'disabled':''} onclick="loadTransport(${page-1})">‹</button>`;
+  for (let i = 1; i <= total; i++) html += `<button class="${i===page?'active':''}" onclick="loadTransport(${i})">${i}</button>`;
+  html += `<button ${page>=total?'disabled':''} onclick="loadTransport(${page+1})">›</button><span class="info">${page} / ${total} 页</span>`;
+  pg.innerHTML = html;
+}
+
+/* ========== Transport Actions ========== */
+function confirmOutStock(id) { pendingApproveId = id; showConfirm('出库确认', `确定订单 ${id} 已出库？将转为待运输状态。`, execOutStock); }
+function confirmStartTransport(id) { pendingApproveId = id; showConfirm('发车确认', `确定订单 ${id} 已发车？将转为运输中状态。`, execStartTransport); }
+function confirmDeliver(id) { pendingApproveId = id; showConfirm('送达确认', `确定订单 ${id} 已送达？将转为已送达状态。`, execDeliver); }
+function confirmComplete(id) { pendingApproveId = id; showConfirm('完成确认', `确定订单 ${id} 已完成？将结束该订单生命周期。`, execComplete); }
+function showConfirm(title, msg, fn) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmApproveBtn').style.display = '';
+  document.getElementById('confirmRejectBtn').style.display = 'none';
+  document.getElementById('confirmApproveBtn').onclick = fn;
+  document.getElementById('confirmModal').classList.add('show');
+}
+async function execOutStock() { const id=pendingApproveId; closeConfirm(); try { await api('POST', '/api/orders/' + id + '/out-stock', {}); toast('出库成功', 'success'); refreshAll(); closeDrawer(); } catch (e) { toast(e.message, 'error'); } }
+async function execStartTransport() { const id=pendingApproveId; closeConfirm(); try { await api('POST', '/api/orders/' + id + '/start-transport', {}); toast('已发车', 'success'); refreshAll(); closeDrawer(); } catch (e) { toast(e.message, 'error'); } }
+async function execDeliver() { const id=pendingApproveId; closeConfirm(); try { await api('POST', '/api/orders/' + id + '/deliver', {}); toast('已确认送达', 'success'); refreshAll(); closeDrawer(); } catch (e) { toast(e.message, 'error'); } }
+async function execComplete() { const id=pendingApproveId; closeConfirm(); try { await api('POST', '/api/orders/' + id + '/complete', {}); toast('订单已完成', 'success'); refreshAll(); closeDrawer(); } catch (e) { toast(e.message, 'error'); } }
+
+/* ========== Pagination ========== */
+function renderPagination(page, total) {
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.classList.add('hidden'); return; }
+  pg.classList.remove('hidden');
+  let html = `<button ${page<=1?'disabled':''} onclick="loadOrders(${page-1})">‹</button>`;
+  for (let i = 1; i <= total; i++) {
+    if (total > 7 && i > 2 && i < total-1 && Math.abs(i-page) > 1) {
+      if (i === 3 || i === total-2) html += '<button disabled>…</button>';
+      continue;
+    }
+    html += `<button class="${i===page?'active':''}" onclick="loadOrders(${i})">${i}</button>`;
+  }
+  html += `<button ${page>=total?'disabled':''} onclick="loadOrders(${page+1})">›</button>`;
+  html += `<span class="info">${page} / ${total} 页</span>`;
+  pg.innerHTML = html;
+}
+
+/* ========== Detail Drawer ========== */
+async function showDetail(id) {
+  try {
+    const d = await api('GET', '/api/orders/' + id);
+    const o = d.order;
+    document.getElementById('drawerBasic').innerHTML = `
+      <div><dt>订单编号</dt><dd><span class="order-id">${o.order_id}</span></dd></div>
+      <div><dt>客户姓名</dt><dd>${esc(o.customer_name)}</dd></div>
+      <div><dt>联系电话</dt><dd>${esc(o.customer_phone)||'-'}</dd></div>
+      <div><dt>客户地址</dt><dd>${esc(o.customer_address)||'-'}</dd></div>
+      <div><dt>创建人</dt><dd>${esc(o.creator)||'-'}</dd></div>
+      <div><dt>创建时间</dt><dd>${(o.create_time||'').substring(0,16)}</dd></div>
+      <div><dt>状态</dt><dd><span class="status-pill st-${stClass(o.status_id)}">${o.status}</span></dd></div>
+      <div><dt>驳回原因</dt><dd style="color:var(--rose)">${esc(o.reject_reason)||'-'}</dd></div>`;
+    document.getElementById('drawerCargo').innerHTML = `
+      <div><dt>货物名称</dt><dd>${esc(o.cargo_name)}</dd></div>
+      <div><dt>货物类型</dt><dd>${o.cargo_type}</dd></div>
+      <div><dt>重量</dt><dd>${o.cargo_weight} kg</dd></div>
+      <div><dt>数量</dt><dd>${o.cargo_quantity}</dd></div>
+      <div><dt>体积</dt><dd>${o.cargo_volume||'-'} m³</dd></div>
+      <div><dt>发货地址</dt><dd>${esc(o.sender_address)||'-'}</dd></div>
+      <div><dt>收货地址</dt><dd>${esc(o.receiver_address)||'-'}</dd></div>
+      <div></div>`;
+    document.getElementById('drawerAudit').innerHTML = `
+      <div class="entry"><span class="who">${esc(o.creator)||'-'}</span><span class="when">创建于 ${(o.create_time||'').substring(0,16)}</span></div>
+      ${o.auditor ? `<div class="entry"><span class="who">${esc(o.auditor)}</span><span class="when">最近处理于 ${(o.audit_time||'').substring(0,16)}</span></div>` : ''}`;
+    const actions = document.getElementById('drawerActions');
+    actions.innerHTML = actionButtons(o);
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.getElementById('drawer').classList.add('open');
+    return true;
+  } catch (e) { toast('加载详情失败：'+e.message, 'error'); return false; }
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('show');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+/* ========== Confirm (approve) ========== */
+function confirmApprove(id) {
+  pendingApproveId = id;
+  document.getElementById('confirmTitle').textContent = '审核通过';
+  document.getElementById('confirmMsg').textContent = `确定要通过订单 ${id} 吗？审核通过后订单状态将变为"待出库"。`;
+  document.getElementById('confirmApproveBtn').style.display = '';
+  document.getElementById('confirmRejectBtn').style.display = 'none';
+  document.getElementById('confirmApproveBtn').onclick = execApprove;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+async function execApprove() {
+  const id=pendingApproveId;
+  closeConfirm();
+  try {
+    await api('POST', '/api/orders/' + id + '/approve', {});
+    toast('审核通过', 'success');
+    refreshAll();
+    closeDrawer();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ========== Confirm (reject) ========== */
+function confirmReject(id) {
+  pendingRejectId = id;
+  document.getElementById('rejectOrderId').textContent = '订单编号：' + id;
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('rejectReason').classList.remove('error');
+  document.getElementById('rejectModal').classList.add('show');
+  setTimeout(() => document.getElementById('rejectReason').focus(), 100);
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('show');
+}
+
+async function execReject() {
+  const reason = document.getElementById('rejectReason').value.trim();
+  if (!reason) {
+    document.getElementById('rejectReason').classList.add('error');
+    return;
+  }
+  closeRejectModal();
+  try {
+    await api('POST', '/api/orders/' + pendingRejectId + '/reject', { reason });
+    toast('已驳回', 'success');
+    refreshAll();
+    closeDrawer();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingApproveId = null;
+}
+
+/* ========== Create Order ========== */
+function showCreateModal() {
+  if (!can('create')) return;
+  editingOrderId=null;
+  document.getElementById('createError').textContent='';
+  document.querySelector('#createModal h3').textContent='新建订单';
+  // Restore saved addresses
+  const savedFrom = localStorage.getItem('lms_last_from') || '';
+  const savedTo = localStorage.getItem('lms_last_to') || '';
+  document.getElementById('oc_from').value = savedFrom;
+  document.getElementById('oc_to').value = savedTo;
+  // Clear other fields
+  ['oc_name','oc_phone','oc_cargo','oc_weight'].forEach(id => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).classList.remove('error');
+  });
+  document.getElementById('oc_qty').value = '1';
+  document.getElementById('oc_type').value = '0';
+  document.getElementById('createModal').classList.add('show');
+  document.getElementById('oc_name').focus();
+}
+
+async function editOrder(id) {
+  if (!can('modify')) return;
+  try {
+    const {order}=await api('GET','/api/orders/'+id);
+    if (order.status_id!==0) throw new Error('只有待审核订单可以修改');
+    editingOrderId=id;editingRevision=order.edit_token;
+    document.getElementById('createError').textContent='';
+    const values={oc_name:order.customer_name,oc_phone:order.customer_phone,oc_cargo:order.cargo_name,
+      oc_type:order.cargo_type_id,oc_weight:order.cargo_weight,oc_qty:order.cargo_quantity,
+      oc_from:order.sender_address,oc_to:order.receiver_address};
+    for (const [name,value] of Object.entries(values)) {document.getElementById(name).value=value??'';document.getElementById(name).classList.remove('error');}
+    document.querySelector('#createModal h3').textContent='修改待审核订单';
+    document.getElementById('createModal').classList.add('show');closeDrawer();
+  } catch(error) {toast(error.message,'error');}
+}
+
+function closeCreateModal() {
+  document.getElementById('createModal').classList.remove('show');
+}
+
+async function createOrder() {
+  if (!can(editingOrderId?'modify':'create')) return;
+  const name = document.getElementById('oc_name').value.trim();
+  const cargo = document.getElementById('oc_cargo').value.trim();
+  let valid = true;
+  if (!name) { document.getElementById('oc_name').classList.add('error'); valid = false; }
+  if (!cargo) { document.getElementById('oc_cargo').classList.add('error'); valid = false; }
+  if (!valid) { toast('请填写必填项', 'error'); return; }
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 提交中…';
+  try {
+    const from = document.getElementById('oc_from').value.trim();
+    const to = document.getElementById('oc_to').value.trim();
+    await api(editingOrderId?'PUT':'POST', editingOrderId?'/api/orders/'+editingOrderId:'/api/orders', {
+      ...(editingOrderId?{edit_token:editingRevision}:{}),
+      customer_name: name,
+      customer_phone: document.getElementById('oc_phone').value.trim(),
+      cargo_name: cargo,
+      cargo_type: parseInt(document.getElementById('oc_type').value),
+      cargo_weight: parseFloat(document.getElementById('oc_weight').value) || 0,
+      cargo_quantity: Number(document.getElementById('oc_qty').value),
+      sender_address: from,
+      receiver_address: to
+    });
+    // Save addresses for next time
+    if (from) localStorage.setItem('lms_last_from', from);
+    if (to) localStorage.setItem('lms_last_to', to);
+    closeCreateModal();
+    toast(editingOrderId?'订单修改成功':'订单创建成功', 'success');
+    editingOrderId=null;
+    refreshAll();
+  } catch (e) { document.getElementById('createError').textContent=e.message;toast(e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '提交订单';
+}
+
+/* ========== Keyboard shortcuts ========== */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeDrawer();
+    closeConfirm();
+    closeRejectModal();
+    closeCreateModal();
+  }
+  if (e.ctrlKey && e.key === 'n') {
+    e.preventDefault();
+    if (!document.getElementById('mainPage').classList.contains('hidden')) showCreateModal();
+  }
+});
+
+/* ========== Init ========== */
+if (token) {
+  (async () => {
+    try {
+      const data=await api('GET','/api/auth/me');
+      applyWorkspace(data.user);
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('mainPage').classList.remove('hidden');
+      await checkStatus();await refreshAll();
+    } catch(error) { document.getElementById('loginMsg').textContent=error.message; }
+  })();
+}
+</script>
+</body>
+</html>

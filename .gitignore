@@ -1,0 +1,38 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.out
+build/
+migration-backups/
+.tmp/
+
+# 运行时生成
+*.log
+*.dat
+order.dat
+user.dat
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+
+# File storage safety artifacts (contain account/order data)
+*.dat.bak
+*.dat.writing-*
+*.dat.damaged-*
+.lms.lock
+
+# Local MySQL instance and generated credentials
+.mysql-learning/
+config/mysql-learning.json
+__pycache__/
+*.pyc
