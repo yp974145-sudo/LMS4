@@ -35,4 +35,5 @@ Thumbs.db
 .mysql-learning/
 config/mysql-learning.json
 __pycache__/
+dependencies/
 *.pyc

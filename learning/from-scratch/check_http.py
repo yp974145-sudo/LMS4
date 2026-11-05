@@ -2,7 +2,9 @@
 import http.client,json,os,socket,subprocess,tempfile,time
 from pathlib import Path
 root=Path(__file__).resolve().parent
-with tempfile.TemporaryDirectory(prefix='http-',dir=root/'.tmp') as folder:
+temporary_root=Path(os.environ.get('LMS_LESSON_TEMP_ROOT',r'C:\Users\23974\Desktop\jk\x'))
+temporary_root.mkdir(parents=True,exist_ok=True)
+with tempfile.TemporaryDirectory(prefix='lms4-lesson-http-',dir=temporary_root) as folder:
     with socket.socket() as probe:
         probe.bind(('127.0.0.1',0));port=probe.getsockname()[1]
     env={**os.environ,'TEMP':folder,'TMP':folder}

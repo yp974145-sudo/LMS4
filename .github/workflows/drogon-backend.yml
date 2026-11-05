@@ -1,0 +1,16 @@
+name: Drogon backend Linux check
+on:
+  workflow_dispatch:
+  push:
+    paths: ['backend/**', '.github/workflows/drogon-backend.yml']
+  pull_request:
+    paths: ['backend/**', '.github/workflows/drogon-backend.yml']
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packaged framework
+        run: sudo apt-get update && sudo apt-get install -y g++ cmake ninja-build python3 libdrogon-dev
+      - name: Configure build and HTTP check
+        run: bash backend/build-linux.sh

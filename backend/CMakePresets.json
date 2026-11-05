@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-mingw",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../build/backend-windows",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+        "CMAKE_PREFIX_PATH": "${sourceDir}/../dependencies/msys2/ucrt64;C:/msys64/ucrt64",
+        "Drogon_DIR": "${sourceDir}/../dependencies/msys2/ucrt64/lib/cmake/Drogon-shared",
+        "Trantor_DIR": "${sourceDir}/../dependencies/msys2/ucrt64/lib/cmake/Trantor-shared"
+      }
+    },
+    {
+      "name": "linux",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../build/backend-linux",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows-mingw", "configurePreset": "windows-mingw" },
+    { "name": "linux", "configurePreset": "linux" }
+  ],
+  "testPresets": [
+    { "name": "windows-mingw", "configurePreset": "windows-mingw", "output": { "outputOnFailure": true } },
+    { "name": "linux", "configurePreset": "linux", "output": { "outputOnFailure": true } }
+  ]
+}
